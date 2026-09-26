@@ -9,10 +9,10 @@ from vllm.distributed.device_communicators.base_device_communicator import (
 )
 from vllm.forward_context import get_forward_context
 from vllm.model_executor.layers.fused_moe.config import FusedMoEQuantConfig
-from vllm.model_executor.layers.fused_moe.utils import (
-    moe_kernel_quantize_input,
+from vllm.model_executor.layers.fused_moe.scale_layout import (
     restore_dispatched_scale_layout,
 )
+from vllm.model_executor.layers.fused_moe.utils import moe_kernel_quantize_input
 
 
 def get_local_sizes() -> list[int] | None:
