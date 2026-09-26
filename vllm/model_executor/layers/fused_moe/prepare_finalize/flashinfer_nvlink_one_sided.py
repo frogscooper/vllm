@@ -9,8 +9,10 @@ from vllm.distributed.device_communicators.base_device_communicator import (
 )
 from vllm.forward_context import get_forward_context
 from vllm.model_executor.layers.fused_moe.config import FusedMoEQuantConfig
-from vllm.model_executor.layers.fused_moe.utils import moe_kernel_quantize_input
-from vllm.utils.flashinfer import nvfp4_block_scale_interleave
+from vllm.model_executor.layers.fused_moe.utils import (
+    moe_kernel_quantize_input,
+    restore_dispatched_scale_layout,
+)
 
 
 def get_local_sizes() -> list[int] | None:
@@ -128,11 +130,13 @@ class FlashInferNVLinkOneSidedPrepareAndFinalize(mk.FusedMoEPrepareAndFinalizeMo
         if dispatch_x_sf is not None:
             recv_x, recv_x_sf, topk_ids_recv, topk_weights_recv = recv_payloads
             x_sf_width = recv_x_sf.shape[-1]
-            # Apply scale interleaving only for CUTLASS (not TRT-LLM)
-            if quant_config.quant_dtype == "nvfp4" and quant_config.is_scale_swizzled:
-                recv_x_sf = recv_x_sf.view(-1, x_sf_width)
-                recv_x_sf = recv_x_sf.view(torch.uint8)
-                recv_x_sf = nvfp4_block_scale_interleave(recv_x_sf)
+            # Swizzle after the A2A if the MoE kernel expects swizzled scales.
+            recv_x_sf = restore_dispatched_scale_layout(
+                recv_x_sf.view(-1, x_sf_width),
+                quant_config.quant_dtype,
+                quant_config.is_scale_swizzled,
+            )
+            assert recv_x_sf is not None
             recv_x_sf = recv_x_sf.view(-1, x_sf_width)
         else:
             recv_x, topk_ids_recv, topk_weights_recv = recv_payloads
