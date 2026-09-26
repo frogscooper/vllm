@@ -9,10 +9,10 @@ from vllm.model_executor.layers.fused_moe.topk_weight_and_reduce import (
     TopKWeightAndReduceContiguous,
     TopKWeightAndReduceDelegate,
 )
-from vllm.model_executor.layers.fused_moe.utils import (
-    moe_kernel_quantize_input,
+from vllm.model_executor.layers.fused_moe.scale_layout import (
     restore_dispatched_scale_layout,
 )
+from vllm.model_executor.layers.fused_moe.utils import moe_kernel_quantize_input
 
 
 def _quantize_and_setup_dispatch(
