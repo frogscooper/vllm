@@ -17,7 +17,7 @@ from vllm.model_executor.layers.fused_moe.config import (
 from vllm.model_executor.layers.fused_moe.prepare_finalize.naive_dp_ep import (
     _unwrap_scale_and_prepare_for_moe,
 )
-from vllm.model_executor.layers.fused_moe.utils import (
+from vllm.model_executor.layers.fused_moe.scale_layout import (
     restore_dispatched_scale_layout,
 )
 from vllm.model_executor.layers.quantization.utils.mxfp8_utils import (
