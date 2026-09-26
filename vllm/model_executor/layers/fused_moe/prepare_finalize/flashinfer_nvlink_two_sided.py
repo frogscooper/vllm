@@ -154,6 +154,7 @@ def flashinfer_alltoall_dispatch(
             topk_weights,
             None,
             all2all_manager.prepare_workspace_tensor,  # type: ignore[attr-defined]
+            max_num_token,
             ep_rank,
             ep_size,
             num_experts,
